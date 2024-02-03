@@ -1,4 +1,5 @@
 from . import db
+from typing import List
 
 name_table = "products"
 
@@ -20,5 +21,7 @@ class Product:
 
 class Products:
     @classmethod
-    def search_by_title(cls, query: str) -> tuple:
-        pass
+    def search_by_name(cls, query: str, sort_by: str|None = None) -> List[Product]:
+        result = db.search_into(name_table, ("name", ), query, sort_by)
+        print(result)
+        return [Product(id) for id, *_ in result]

@@ -1,7 +1,7 @@
 import sqlite3
 from contextlib import closing
 from pathlib import Path
-from typing import List
+from typing import List, Tuple
 
 class DataBase:
     def __init__(self, db_path: str):
@@ -103,7 +103,7 @@ class DataBase:
             columns_clause = ', '.join(columns)
         
         query = f"SELECT {columns_clause} FROM {table} WHERE id=?"
-        result_rows = self.execute(query, (primary_key_value,))
+        result_rows = self.execute(query, (str(primary_key_value),))
         
         if result_rows:
             record = result_rows[0]
@@ -135,9 +135,13 @@ class DataBase:
 
         return row_id
     
-    def search_into(self, table_name: str, columns: tuple, query: str) -> tuple:
+    def search_into(self, table_name: str, columns: tuple, query: str, sort_by: str = None) -> tuple:
         base_query = f"SELECT id FROM {table_name} WHERE "
-        conditions = [f'{column} LIKE "%?%"' for column in columns]
-        final_query = base_query + " OR ".join(conditions)
+        conditions = [f"{column} LIKE '%' || ? || '%'" for column in columns]
+        sort = f"ORDER BY {sort_by}" if sort_by else ""
+        final_query = base_query + " OR ".join(conditions) + sort
+        print(final_query)
+        return self.execute(final_query, (query, ))
+        
         
 

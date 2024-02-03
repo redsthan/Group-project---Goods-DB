@@ -1,5 +1,5 @@
-from database import products
+from database.products import Product, Products
+import random
+import string
 
-r = products.Product.create(name="truc")
-y = products.Product(2)
-print(r, y)
+print(Products.search_by_name("ab"))
