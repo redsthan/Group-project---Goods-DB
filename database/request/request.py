@@ -136,6 +136,19 @@ class DataBase:
         return row_id
     
     def search_into(self, table_name: str, columns: tuple, query: str, sort_by: str = None, desc: bool = False) -> tuple:
+        """
+        Search for data in a table based on the specified query and columns.
+
+        Args:
+            table_name (str): Name of the table to perform the search in.
+            columns (tuple): Tuple of column names to search in.
+            query (str): Search query.
+            sort_by (str, optional): Name of the column to sort the results by. Default is None.
+            desc (bool, optional): Indicates whether sorting should be done in descending order. Default is False.
+
+        Returns:
+            tuple: A tuple containing the search results.
+        """
         base_query = f"SELECT id FROM {table_name} WHERE "
         conditions = [f"{column} LIKE '%' || ? || '%'" for column in columns]
         sort = f"ORDER BY {sort_by}" if sort_by else ""
@@ -143,8 +156,17 @@ class DataBase:
         final_query = base_query + " OR ".join(conditions) + sort + variation
         print(final_query)
         return self.execute(final_query, (query, ))
-    
+
     def set(self, table_name: str, column: str, id: int, value):
+        """
+        Update the value of a column for a specified entry in a table.
+
+        Args:
+            table_name (str): Name of the table to perform the update in.
+            column (str): Name of the column to update.
+            id (int): ID of the entry to update.
+            value: New value to set for the column.
+        """
         query = f"UPDATE {table_name} SET {column} = ? WHERE id = ?"
         return self.execute(query, (value, id))
         
