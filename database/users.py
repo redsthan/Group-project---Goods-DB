@@ -7,13 +7,48 @@ name_table = "users"
 class User:
     @classmethod
     def create(cls, **kwargs: Any) -> "User":
+        """
+        Create a new user and insert the data into the database.
+
+        Args:
+            **kwargs: Keyword arguments representing user data (e.g., pseudo, password, etc.).
+
+        Returns:
+            User: A new User object representing the created user.
+        """
         return cls(db.insert_into_table(name_table, **kwargs))
     
     @classmethod
-    def verify_password(cls, pseudo:str, password:str) -> bool|"User":
-        
-    
+    def verify_password(cls, pseudo: str, password: str) -> bool | "User":
+        """
+        Verify the password for a user with the given pseudo.
+
+        Args:
+            pseudo (str): The pseudo (username) of the user.
+            password (str): The password to verify.
+
+        Returns:
+            bool | User: True if the password is correct; otherwise, returns False.
+                        If the user is authenticated, returns the corresponding User object.
+        """
+        try:
+            user = User(db.unique_to_id(name_table, "pseudo", pseudo))
+            if user.password == password:
+                return user
+            return False
+        except ValueError:
+            return False
+
     def __init__(self, id: int) -> None:
+        """
+        Initialize a User object with data retrieved from the database.
+
+        Args:
+            id (int): The unique identifier of the user.
+
+        Returns:
+            None
+        """
         self._datas = db.select_primary_key(name_table, id)
         self._id = self._datas["id"]
         self._pseudo = self._datas["pseudo"]
