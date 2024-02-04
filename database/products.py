@@ -188,6 +188,9 @@ class Product:
         """
         return f"Product with {self.datas}"
     
+    def __bool__(self) -> bool:
+        return True
+    
     def delete(self) -> None:
         """
         Delete the product record from the database.

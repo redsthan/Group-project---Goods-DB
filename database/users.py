@@ -1,10 +1,13 @@
+from typing import Optional, Dict, Any
 from . import db
-from typing import Dict, Any
-
 
 name_table = "users"
 
 class User:
+    """
+    Represents a user and provides methods for interacting with the database.
+    """
+
     @classmethod
     def create(cls, **kwargs: Any) -> "User":
         """
@@ -17,9 +20,9 @@ class User:
             User: A new User object representing the created user.
         """
         return cls(db.insert_into_table(name_table, **kwargs))
-    
+
     @classmethod
-    def verify_password(cls, pseudo: str, password: str) -> bool | "User":
+    def verify_password(cls, pseudo: str, password: str) -> Optional["User"]:
         """
         Verify the password for a user with the given pseudo.
 
@@ -28,16 +31,15 @@ class User:
             password (str): The password to verify.
 
         Returns:
-            bool | User: True if the password is correct; otherwise, returns False.
-                        If the user is authenticated, returns the corresponding User object.
+            Optional[User]: User object if authentication is successful; otherwise, None.
         """
         try:
             user = User(db.unique_to_id(name_table, "pseudo", pseudo))
             if user.password == password:
                 return user
-            return False
+            return None
         except ValueError:
-            return False
+            return None
 
     def __init__(self, id: int) -> None:
         """
@@ -50,11 +52,20 @@ class User:
             None
         """
         self._datas = db.select_primary_key(name_table, id)
-        self._id = self._datas["id"]
-        self._pseudo = self._datas["pseudo"]
-        self._password = self._datas["password"]
-        self._description = self._datas["description"]
-        self._picture = self._datas["picture"]
+        self._id = self._datas.get("id", 0)
+        self._pseudo = self._datas.get("pseudo", "")
+        self._password = self._datas.get("password", "")
+        self._description = self._datas.get("description", "")
+        self._picture = self._datas.get("picture", b"")
+
+    def __bool__(self) -> bool:
+        """
+        Check if the User object is considered truthy.
+
+        Returns:
+            bool: Always True.
+        """
+        return True
 
     @property
     def datas(self) -> Dict[str, Any]:
@@ -140,28 +151,46 @@ class User:
         self._description = value
 
     @property
-    def picture(self) -> bin:
+    def picture(self) -> bytes:
         """
         Returns the binary data representing the picture of the user.
 
         Returns:
-            bin: The user picture data.
+            bytes: The user picture data.
         """
         return self._picture
 
     @picture.setter
-    def picture(self, value: bin) -> None:
+    def picture(self, value: bytes) -> None:
         """
         Sets the picture of the user and updates the database.
 
         Args:
-            value (bin): The new picture data of the user.
+            value (bytes): The new picture data of the user.
         """
         db.set(name_table, self.id, "picture", value)
         self._picture = value
-        
+
     def delete(self) -> None:
         """
         Delete the user record from the database.
         """
-        return db.delete(name_table, self.id)
+        db.delete(name_table, self.id)
+
+    def __repr__(self) -> str:
+        """
+        Return a string representation of the User object.
+
+        Returns:
+            str: A string representation.
+        """
+        return f"User({self.id})"
+
+    def __str__(self) -> str:
+        """
+        Return a human-readable string representation of the User object.
+
+        Returns:
+            str: A human-readable string representation.
+        """
+        return f"User with {self.datas}"
