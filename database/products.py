@@ -3,8 +3,6 @@ from typing import List, Tuple, Any, Dict
 
 name_table = "products"
 
-from typing import Dict, Any
-
 class Product:
     """
     Represents a product with information stored in a database.
