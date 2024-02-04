@@ -31,7 +31,7 @@ search_results = Products.search("mario", sort_by="price")
 #Idem, mais trié dans l'ordre de prix croissant
 #Les valeurs possibles sont "name", "description", "price", "quantity"
 
-search_results = Products.search("mario", sort_by="price", desc=False)
+search_results = Products.search("mario", sort_by="price", desc=True)
 #Idem, mais dans l'odre décroissant
 
 search_results = Products.search("mario", min_price=3.45, max_price=34.02)
