@@ -112,27 +112,31 @@ class DataBase:
         
         return {column: value for column, value in zip(columns, record)}
     
-    def unique_to_id(self, table: str, column: str, key: str) -> int|None:
-        """
-        Retrieves the unique identifier (id) of a record from a specified table
-        where a specified column matches a given key.
+def unique_to_id(self, table: str, column: str, key: str) -> int:
+    """
+    Retrieve the unique identifier (id) of a record from a specified table
+    where a specified column matches a given key.
 
-        Args:
-            table (str): The name of the table to query.
-            column (str): The column to check for a match.
-            key (str): The value to match in the specified column.
+    Args:
+        table (str): The name of the table to query.
+        column (str): The column to check for a match.
+        key (str): The value to match in the specified column.
 
-        Returns:
-            int or None: The id of the matching record if found; otherwise, returns None.
-        """
-        query = f"SELECT id FROM {table} WHERE {column}=?"
-        result_rows = self.execute(query, (key,))
-        
-        if result_rows:
-            record = result_rows[0]
-            return record[0]
-        
-        return None
+    Returns:
+        int: The id of the matching record.
+
+    Raises:
+        ValueError: If no matching record is found.
+    """
+    query = f"SELECT id FROM {table} WHERE {column}=?"
+    result_rows = self.execute(query, (key,))
+    
+    if result_rows:
+        record = result_rows[0]
+        return record[0]
+    
+    raise ValueError("No matching record found.")
+
 
     
     def insert_into_table(self, table_name: str, **values) -> int:
