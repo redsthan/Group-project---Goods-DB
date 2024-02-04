@@ -105,7 +105,7 @@ class User:
         Args:
             value (str): The new pseudo of the user.
         """
-        db.set(name_table, self.id, "pseudo", value)
+        db.set(name_table, "pseudo", self.id , value)
         self._pseudo = value
 
     @property
@@ -126,7 +126,7 @@ class User:
         Args:
             value (str): The new password of the user.
         """
-        db.set(name_table, self.id, "password", value)
+        db.set(name_table, "password", self.id, value)
         self._password = value
 
     @property
@@ -147,7 +147,7 @@ class User:
         Args:
             value (str): The new description of the user.
         """
-        db.set(name_table, self.id, "description", value)
+        db.set(name_table, "description", self.id, value)
         self._description = value
 
     @property
@@ -168,7 +168,7 @@ class User:
         Args:
             value (bytes): The new picture data of the user.
         """
-        db.set(name_table, self.id, "picture", value)
+        db.set(name_table, "picture", self.id, value)
         self._picture = value
 
     def delete(self) -> None:

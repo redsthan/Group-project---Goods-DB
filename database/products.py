@@ -83,7 +83,7 @@ class Product:
         Args:
             value (str): The new name of the product.
         """
-        db.set(name_table, self.id, "name", value)
+        db.set(name_table, "name", self.id, value)
         self._name = value
 
     @property
@@ -104,7 +104,7 @@ class Product:
         Args:
             value (str): The new description of the product.
         """
-        db.set(name_table, self.id, "description", value)
+        db.set(name_table, "description", self.id, value)
         self._description = value
 
     @property
@@ -125,7 +125,7 @@ class Product:
         Args:
             value (float): The new price of the product.
         """
-        db.set(name_table, self.id, "price", value)
+        db.set(name_table, "price", self.id, value)
         self._price = value
 
     @property
@@ -146,7 +146,7 @@ class Product:
         Args:
             value (float): The new quantity of the product.
         """
-        db.set(name_table, self.id, "quantity", value)
+        db.set(name_table, "quantity", self.id, value)
         self._quantity = value
 
     @property
@@ -167,7 +167,7 @@ class Product:
         Args:
             value (bin): The new illustration data of the product.
         """
-        db.set(name_table, self.id, "illustration", value)
+        db.set(name_table, "illustration", self.id, value)
         self._illustration = value
 
     def __repr__(self) -> str:

@@ -177,12 +177,11 @@ class DataBase:
             tuple: A tuple containing the search results.
         """
         base_query = f"SELECT id FROM {table_name} WHERE "
-        conditions = [f"{column} LIKE '%' || ? || '%'" for column in columns]
+        conditions = [f"UPPER({column}) LIKE '%' || UPPER(?) || '%'" for column in columns]
         sort = f"ORDER BY {sort_by}" if sort_by else ""
         variation = " DESC" if desc else ""
         final_query = base_query + " OR ".join(conditions) + sort + variation
-        print(final_query)
-        return self.execute(final_query, (query, ))
+        return self.execute(final_query, (query, )*len(columns))
 
     def set(self, table_name: str, column: str, id: int, value):
         """
