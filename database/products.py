@@ -82,9 +82,16 @@ class Product:
 
         Args:
             value (str): The new name of the product.
+
+        Raises:
+            ValueError: If the provided name already exists in the database.
         """
-        db.set(name_table, "name", self.id, value)
-        self._name = value
+        if not db.exists(name_table, "name", value):
+            db.set(name_table, "name", self.id, value)
+            self._name = value
+            return None
+        raise ValueError("Existing product name...")
+
 
     @property
     def description(self) -> str:

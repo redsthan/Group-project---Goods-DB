@@ -1,7 +1,7 @@
 import sqlite3
 from contextlib import closing
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Any
 
 class DataBase:
     def __init__(self, db_path: str):
@@ -136,8 +136,6 @@ class DataBase:
             return record[0]
         
         raise ValueError("No matching record found.")
-
-
     
     def insert_into_table(self, table_name: str, **values) -> int:
         """Insert a new row into the specified table with specified values.
@@ -206,3 +204,9 @@ class DataBase:
         """
         query = f"DELETE FROM {table_name} WHERE id=?"
         self.execute(query, (id,))
+        
+    def exists(self, table_name:str, column:str, value:Any) -> bool:
+        query = f"SELECT * FROM {table_name} WHERE {column} = ?"
+        if self.execute(query, (value, )):
+            return True
+        return False

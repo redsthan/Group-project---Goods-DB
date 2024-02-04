@@ -104,9 +104,15 @@ class User:
 
         Args:
             value (str): The new pseudo of the user.
+
+        Raises:
+            ValueError: If the provided pseudo already exists in the database.
         """
-        db.set(name_table, "pseudo", self.id , value)
-        self._pseudo = value
+        if not db.exists(name_table, "pseudo", value):
+            db.set(name_table, "pseudo", self.id, value)
+            self._pseudo = value
+            return None
+        raise ValueError("Existing username...")
 
     @property
     def password(self) -> str:
