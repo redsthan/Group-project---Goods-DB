@@ -82,7 +82,7 @@ class DataBase:
         result_rows = self.execute(query, ())
         return [description[1] for description in result_rows]
         
-    def select_primary_key(self, table: str, primary_key_value: int, columns: list = None) -> dict:
+    def select_primary_key(self, table: str, primary_key_value: int, columns: list|None = None) -> dict:
         """Retrieve a record from the specified table based on the primary key.
 
         Args:
@@ -135,13 +135,18 @@ class DataBase:
 
         return row_id
     
-    def search_into(self, table_name: str, columns: tuple, query: str, sort_by: str = None) -> tuple:
+    def search_into(self, table_name: str, columns: tuple, query: str, sort_by: str = None, desc: bool = False) -> tuple:
         base_query = f"SELECT id FROM {table_name} WHERE "
         conditions = [f"{column} LIKE '%' || ? || '%'" for column in columns]
         sort = f"ORDER BY {sort_by}" if sort_by else ""
-        final_query = base_query + " OR ".join(conditions) + sort
+        variation = " DESC" if desc else ""
+        final_query = base_query + " OR ".join(conditions) + sort + variation
         print(final_query)
         return self.execute(final_query, (query, ))
+    
+    def set(self, table_name: str, column: str, id: int, value):
+        query = f"UPDATE {table_name} SET {column} = ? WHERE id = ?"
+        return self.execute(query, (value, id))
         
         
 
