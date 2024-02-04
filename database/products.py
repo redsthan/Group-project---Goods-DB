@@ -187,6 +187,12 @@ class Product:
             str: A string representation of the product with all its data.
         """
         return f"Product with {self.datas}"
+    
+    def delete(self) -> None:
+        """
+        Delete the product record from the database.
+        """
+        return db.delete(name_table, self.id)
 
 
 

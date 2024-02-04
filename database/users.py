@@ -159,3 +159,9 @@ class User:
         """
         db.set(name_table, self.id, "picture", value)
         self._picture = value
+        
+    def delete(self) -> None:
+        """
+        Delete the user record from the database.
+        """
+        return db.delete(name_table, self.id)

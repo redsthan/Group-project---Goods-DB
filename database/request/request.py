@@ -196,3 +196,14 @@ class DataBase:
         """
         query = f"UPDATE {table_name} SET {column} = ? WHERE id = ?"
         return self.execute(query, (value, id))
+
+    def delete(self, table_name: str, id: int) -> None:
+        """
+        Delete a record from the specified table based on the provided id.
+
+        Args:
+            table_name (str): The name of the table from which to delete the record.
+            id (int): The unique identifier of the record to be deleted.
+        """
+        query = f"DELETE FROM {table_name} WHERE id=?"
+        self.execute(query, (id,))
