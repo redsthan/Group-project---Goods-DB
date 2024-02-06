@@ -1,7 +1,5 @@
 from .request.request import DataBase
 from pathlib import Path
-from .products import Products, Product
-from .users import User
 
 user = "user"
 basket = "basket"

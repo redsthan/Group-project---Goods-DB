@@ -60,7 +60,7 @@ class User:
         self._description = self._datas.get("description", "")
         self._picture = self._datas.get("picture", b"")
         
-    def get_basket(self) -> Products:
+    def get_basket(self):
         """
         Retrieve the products in the user's basket from the database.
 
@@ -75,7 +75,7 @@ class User:
         quantities = [row[2] for row in rows]
         return products, quantities
     
-    def add_to_basket(self, product: Product, quantity:int=1) -> None:
+    def add_to_basket(self, product, quantity:int=1) -> None:
         """
         Add a product to the user's basket in the database.
 
@@ -91,7 +91,7 @@ class User:
         self.remove_from_basket(product)
         db.insert_into_table(basket, user_id=self.id, product_id=product.id, quantity=quantity)
     
-    def remove_from_basket(self, product: Product) -> None:
+    def remove_from_basket(self, product) -> None:
         """
         Remove a product from the user's basket in the database.
 
