@@ -70,8 +70,10 @@ class User:
         Note:
             The Products collection may be empty if the user's basket is currently empty.
         """
-        products = Products([row[1] for row in db.get_rows(basket, "user_id", self.id)])
-        return products
+        rows = db.get_rows(basket, "user_id", self.id)
+        products = Products([row[1] for row in rows])
+        quantities = [row[2] for row in rows]
+        return products, quantities
     
     def add_to_basket(self, product: Product, quantity:int=1) -> None:
         """
@@ -86,6 +88,7 @@ class User:
         """
         if quantity <= 0:
             raise ValueError("Quantity must be a positive integer.")
+        self.remove_from_basket(product)
         db.insert_into_table(basket, user_id=self.id, product_id=product.id, quantity=quantity)
     
     def remove_from_basket(self, product: Product) -> None:

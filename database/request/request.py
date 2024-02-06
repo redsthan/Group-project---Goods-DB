@@ -205,7 +205,7 @@ class DataBase:
         query = f"DELETE FROM {table_name} WHERE id=?"
         self.execute(query, (id,))
         
-    def delete_by_conditions(self, table_name: str, columns: Tuple(str), values: Tuple(Any)) -> None:
+    def delete_by_conditions(self, table_name: str, columns: Tuple[str], values: Tuple[Any]) -> None:
         query = f"DELETE FROM {table_name} WHERE "
         conditions = [f"{column}=?" for column in columns]
         final_query = query + " AND ".join(conditions)
