@@ -1,7 +1,9 @@
 from typing import Optional, Dict, Any
-from . import db
-
-name_table = "users"
+from . import (db, 
+               Product,
+               Products, 
+               user, 
+               basket)
 
 class User:
     """
@@ -19,7 +21,7 @@ class User:
         Returns:
             User: A new User object representing the created user.
         """
-        return cls(db.insert_into_table(name_table, **kwargs))
+        return cls(db.insert_into_table(user, **kwargs))
 
     @classmethod
     def verify_password(cls, pseudo: str, password: str) -> Optional["User"]:
@@ -34,7 +36,7 @@ class User:
             Optional[User]: User object if authentication is successful; otherwise, None.
         """
         try:
-            user = User(db.unique_to_id(name_table, "pseudo", pseudo))
+            user = User(db.unique_to_id(user, "pseudo", pseudo))
             if user.password == password:
                 return user
             return None
@@ -51,12 +53,52 @@ class User:
         Returns:
             None
         """
-        self._datas = db.select_primary_key(name_table, id)
+        self._datas = db.select_primary_key(user, id)
         self._id = self._datas.get("id", 0)
         self._pseudo = self._datas.get("pseudo", "")
         self._password = self._datas.get("password", "")
         self._description = self._datas.get("description", "")
         self._picture = self._datas.get("picture", b"")
+        
+    def get_basket(self) -> Products:
+        """
+        Retrieve the products in the user's basket from the database.
+
+        Returns:
+            Products: A Products object representing the items in the user's basket.
+            
+        Note:
+            The Products collection may be empty if the user's basket is currently empty.
+        """
+        products = Products([row[1] for row in db.get_rows(basket, "user_id", self.id)])
+        return products
+    
+    def add_to_basket(self, product: Product, quantity:int=1) -> None:
+        """
+        Add a product to the user's basket in the database.
+
+        Args:
+            product (Product): The product to add to the basket.
+            quantity (int, optional): The quantity of the product to add (default is 1).
+
+        Raises:
+            ValueError: If the quantity is not a positive integer.
+        """
+        if quantity <= 0:
+            raise ValueError("Quantity must be a positive integer.")
+        db.insert_into_table(basket, user_id=self.id, product_id=product.id, quantity=quantity)
+    
+    def remove_from_basket(self, product: Product) -> None:
+        """
+        Remove a product from the user's basket in the database.
+
+        Args:
+            product (Product): The product to remove from the basket.
+
+        Note:
+            If the specified product is not found in the user's basket, no action is taken.
+        """
+        db.delete_by_conditions(basket, ("user_id", "product_id"), (self.id, product.id))
 
     def __bool__(self) -> bool:
         """
@@ -108,8 +150,8 @@ class User:
         Raises:
             ValueError: If the provided pseudo already exists in the database.
         """
-        if not db.exists(name_table, "pseudo", value):
-            db.set(name_table, "pseudo", self.id, value)
+        if not db.exists(user, "pseudo", value):
+            db.set(user, "pseudo", self.id, value)
             self._pseudo = value
             return None
         raise ValueError("Existing username...")
@@ -132,7 +174,7 @@ class User:
         Args:
             value (str): The new password of the user.
         """
-        db.set(name_table, "password", self.id, value)
+        db.set(user, "password", self.id, value)
         self._password = value
 
     @property
@@ -153,7 +195,7 @@ class User:
         Args:
             value (str): The new description of the user.
         """
-        db.set(name_table, "description", self.id, value)
+        db.set(user, "description", self.id, value)
         self._description = value
 
     @property
@@ -174,14 +216,14 @@ class User:
         Args:
             value (bytes): The new picture data of the user.
         """
-        db.set(name_table, "picture", self.id, value)
+        db.set(user, "picture", self.id, value)
         self._picture = value
 
     def delete(self) -> None:
         """
         Delete the user record from the database.
         """
-        db.delete(name_table, self.id)
+        db.delete(user, self.id)
 
     def __repr__(self) -> str:
         """

@@ -1,5 +1,11 @@
 from .request.request import DataBase
 from pathlib import Path
+from .products import Products, Product
+from .users import User
+
+user = "user"
+basket = "basket"
+product = "product"
 
 script_directory = Path(__file__).parent
 

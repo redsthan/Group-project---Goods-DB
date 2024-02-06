@@ -205,8 +205,18 @@ class DataBase:
         query = f"DELETE FROM {table_name} WHERE id=?"
         self.execute(query, (id,))
         
+    def delete_by_conditions(self, table_name: str, columns: Tuple(str), values: Tuple(Any)) -> None:
+        query = f"DELETE FROM {table_name} WHERE "
+        conditions = [f"{column}=?" for column in columns]
+        final_query = query + " AND ".join(conditions)
+        return self.execute(final_query, values)
+    
     def exists(self, table_name:str, column:str, value:Any) -> bool:
         query = f"SELECT * FROM {table_name} WHERE {column} = ?"
         if self.execute(query, (value, )):
             return True
         return False
+    
+    def get_rows(self, table_name:str, column:str, value:str) -> Tuple(Tuple(Any)):
+        query = f"SELECT * FROM {table_name} WHERE {column} = ?"
+        return self.execute(query, (value, ))
