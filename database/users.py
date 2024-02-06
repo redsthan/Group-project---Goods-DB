@@ -1,4 +1,5 @@
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
+from .products import Product, Products
 from . import (db,
                user, 
                basket)
@@ -59,47 +60,11 @@ class User:
         self._picture = self._datas.get("picture", b"")
         
     def get_basket(self):
-        """
-        Retrieve the products in the user's basket from the database.
-
-        Returns:
-            Products: A Products object representing the items in the user's basket.
-            
-        Note:
-            The Products collection may be empty if the user's basket is currently empty.
-        """
         rows = db.get_rows(basket, "user_id", self.id)
         products = Products([row[1] for row in rows])
         quantities = [row[2] for row in rows]
-        return products, quantities
-    
-    def add_to_basket(self, product, quantity:int=1) -> None:
-        """
-        Add a product to the user's basket in the database.
-
-        Args:
-            product (Product): The product to add to the basket.
-            quantity (int, optional): The quantity of the product to add (default is 1).
-
-        Raises:
-            ValueError: If the quantity is not a positive integer.
-        """
-        if quantity <= 0:
-            raise ValueError("Quantity must be a positive integer.")
-        self.remove_from_basket(product)
-        db.insert_into_table(basket, user_id=self.id, product_id=product.id, quantity=quantity)
-    
-    def remove_from_basket(self, product) -> None:
-        """
-        Remove a product from the user's basket in the database.
-
-        Args:
-            product (Product): The product to remove from the basket.
-
-        Note:
-            If the specified product is not found in the user's basket, no action is taken.
-        """
-        db.delete_by_conditions(basket, ("user_id", "product_id"), (self.id, product.id))
+        commands = [Command(product, quantity) for product, quantity in zip(products, quantities)]
+        return Basket(self, commands)
 
     def __bool__(self) -> bool:
         """
@@ -243,3 +208,145 @@ class User:
             str: A human-readable string representation.
         """
         return f"User with {self.datas}"
+
+
+class Command:
+    def __init__(self, user: User, product: Product, quantity: int):
+        """
+        Represents a user command to modify the quantity of a product in their basket.
+
+        Args:
+            user (User): The user associated with the command.
+            product (Product): The product associated with the command.
+            quantity (int): The quantity of the product in the command.
+
+        Attributes:
+            user (User): The user associated with the command.
+            product (Product): The product associated with the command.
+            quantity (int): The quantity of the product in the command.
+        """
+        self._user = user
+        self._product = product
+        self._quantity = quantity
+
+    @property
+    def user(self) -> User:
+        """
+        Get the user associated with the command.
+
+        Returns:
+            User: The user associated with the command.
+        """
+        return self._user
+
+    @property
+    def product(self) -> Product:
+        """
+        Get the product associated with the command.
+
+        Returns:
+            Product: The product associated with the command.
+        """
+        return self._product
+
+    @property
+    def quantity(self) -> int:
+        """
+        Get the quantity of the product in the command.
+
+        Returns:
+            int: The quantity of the product in the command.
+        """
+        return self._quantity
+
+    @quantity.setter
+    def quantity(self, value: int) -> None:
+        """
+        Set the quantity of the product in the command and update the database.
+
+        Args:
+            value (int): The new quantity of the product in the command.
+        """
+        db.delete_by_conditions(basket, ("user_id", "product_id"), (self.user.id, self.product.id))
+        db.insert_into_table(basket, user_id=self.user.id, product_id=self.product.id, quantity=value)
+        self._quantity = value
+
+    def __del__(self) -> None:
+        """
+        Delete the current command from the associated basket and database.
+        """
+        db.delete_by_conditions(basket, ("user_id", "product_id"), (self.user.id, self.product.id))
+
+
+class Basket:
+    def __init__(self, user: User, commands: List[Command]):
+        """
+        Represents a collection of user commands to modify product quantities in a basket.
+
+        Args:
+            commands (List[Command]): A list of Command objects.
+
+        Attributes:
+            commands (List[Command]): A list of Command objects.
+        """
+        self._commands = commands
+        self._user = user
+
+    @property
+    def commands(self) -> List[Command]:
+        """
+        Get the list of commands in the basket.
+
+        Returns:
+            List[Command]: A list of Command objects in the basket.
+        """
+        return self._commands
+    
+    @property
+    def user(self):
+        return self._user
+
+    def __getitem__(self, index: int) -> Command:
+        """
+        Get a specific command from the basket using the index.
+
+        Args:
+            index (int): The index of the command to retrieve.
+
+        Returns:
+            Command: The Command object at the specified index.
+        """
+        return self.commands[index]
+
+    def __iter__(self) -> List[Command]:
+        """
+        Enable iteration over the commands in the basket.
+
+        Returns:
+            Iterator: An iterator over the commands in the basket.
+        """
+        return iter(self.commands)
+
+    def __bool__(self) -> bool:
+        """
+        Check if the basket has any commands.
+
+        Returns:
+            bool: True if the basket has commands, False otherwise.
+        """
+        return bool(self.commands)
+
+    def __delitem__(self, index: int) -> None:
+        """
+        Implement deletion using del basket_instance[index].
+
+        Args:
+            index (int): The index of the command to remove.
+        """
+        self._commands.pop(index)
+        
+    def add(self, product:Product, quantity:int=1):
+        db.insert_into_table(basket, user_id=self.user.id, product_id=product.id, quantity=quantity)
+        
+       
+
