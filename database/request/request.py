@@ -217,6 +217,6 @@ class DataBase:
             return True
         return False
     
-    def get_rows(self, table_name:str, column:str, value:str) -> Tuple(Tuple(Any)):
+    def get_rows(self, table_name:str, column:str, value:str) -> Tuple[Tuple[Any]]:
         query = f"SELECT * FROM {table_name} WHERE {column} = ?"
         return self.execute(query, (value, ))
