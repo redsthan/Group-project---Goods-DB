@@ -1,7 +1,5 @@
 from typing import Optional, Dict, Any
-from . import (db, 
-               Product,
-               Products, 
+from . import (db,
                user, 
                basket)
 
