@@ -347,3 +347,6 @@ class Products:
         """
         result = db.search_into(product, ("name", "description"), query, sort_by, desc)
         return cls.get(result).filter_by_price(min_price, max_price)
+    
+    def __bool__(self):
+        return bool(self._products)
