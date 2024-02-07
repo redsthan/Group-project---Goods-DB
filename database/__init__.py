@@ -4,6 +4,9 @@ from pathlib import Path
 user = "users"
 basket = "basket"
 product = "products"
+categories = "categories"
+tags = "tags"
+tagged = "tagged"
 
 script_directory = Path(__file__).parent
 

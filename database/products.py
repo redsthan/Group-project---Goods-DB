@@ -1,4 +1,4 @@
-from . import db, product
+from . import db, product, tags, categories, tagged
 from typing import List, Tuple, Any, Dict
 
 class Product:
@@ -14,19 +14,6 @@ class Product:
         _quantity (float): The quantity of the product.
         _illustration (bin): The binary data representing the illustration of the product.
     """
-
-    @classmethod
-    def create(cls, **datas: Any) -> 'Product':
-        """
-        Creates a new instance of the Product class and inserts data into the database.
-
-        Args:
-            **datas: Keyword arguments representing the product data.
-
-        Returns:
-            Product: The newly created Product instance.
-        """
-        return cls(db.insert_into_table(product, **datas))
 
     def __init__(self, id: int) -> None:
         """
@@ -214,6 +201,19 @@ class Products:
     Attributes:
         _products (List[Product]): List of Product instances in the collection.
     """
+    
+    @classmethod
+    def create(cls, **datas: Any) -> Product:
+        """
+        Creates a new instance of the Product class and inserts data into the database.
+
+        Args:
+            **datas: Keyword arguments representing the product data.
+
+        Returns:
+            Product: The newly created Product instance.
+        """
+        return cls(db.insert_into_table(product, **datas))
 
     def __init__(self, products: List[Product]) -> None:
         """
@@ -350,3 +350,93 @@ class Products:
     
     def __bool__(self):
         return bool(self._products)
+    
+class Category:
+    """
+    Represents a product category.
+
+    Attributes:
+        _id (int): The unique identifier of the category.
+        _name (str): The name of the category.
+    """
+
+    @classmethod
+    def create(cls, name: str) -> "Category":
+        """
+        Create a new category and insert it into the database.
+
+        Args:
+            name (str): The name of the new category.
+
+        Returns:
+            Category: A new Category object representing the created category.
+        """
+        return Category(db.insert_into_table(categories, name=name))
+
+    @classmethod
+    def get(cls) -> List["Category"]:
+        """
+        Retrieve all categories from the database.
+
+        Returns:
+            List[Category]: A list of Category objects representing all categories in the database.
+        """
+        return [Category(id) for id in db.get_all(categories)]
+
+    def __init__(self, id: int) -> None:
+        """
+        Initialize a Category object with data retrieved from the database.
+
+        Args:
+            id (int): The unique identifier of the category.
+
+        Returns:
+            None
+        """
+        category = db.select_primary_key(categories, id)
+        self._id = id
+        self._name = category["name"]
+
+    @property
+    def id(self) -> int:
+        """
+        Get the unique identifier of the category.
+
+        Returns:
+            int: The unique identifier of the category.
+        """
+        return self._id
+
+    @property
+    def name(self) -> str:
+        """
+        Get the name of the category.
+
+        Returns:
+            str: The name of the category.
+        """
+        return self._name
+
+    @name.setter
+    def name(self, new: str) -> None:
+        """
+        Set the name of the category and update the database.
+
+        Args:
+            new (str): The new name for the category.
+        """
+        db.set(categories, "name", self.id, new)
+        self._name = new
+
+    def delete(self) -> None:
+        """
+        Delete the category from the database.
+        """
+        db.delete(categories, self.id)
+
+            
+class Tag:
+    @classmethod
+    def create(cls, name:str, category:Category):
+        return Tag(db.insert_into_table(tags, name=name, category=category.id))
+        
