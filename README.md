@@ -105,3 +105,5 @@ basket.add(product, 3)
 #Ajoute 3 fois le produit au panier
 
 ```
+
+![svg](MCD.svg)
