@@ -1,9 +1,9 @@
 from .request.request import DataBase
 from pathlib import Path
 
-user = "user"
+user = "users"
 basket = "basket"
-product = "product"
+product = "products"
 
 script_directory = Path(__file__).parent
 

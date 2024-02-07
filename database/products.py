@@ -1,7 +1,5 @@
-from . import db
+from . import db, product
 from typing import List, Tuple, Any, Dict
-
-name_table = "products"
 
 class Product:
     """
@@ -28,7 +26,7 @@ class Product:
         Returns:
             Product: The newly created Product instance.
         """
-        return cls(db.insert_into_table(name_table, **datas))
+        return cls(db.insert_into_table(product, **datas))
 
     def __init__(self, id: int) -> None:
         """
@@ -37,7 +35,7 @@ class Product:
         Args:
             id (int): The unique identifier of the product.
         """
-        self._datas = db.select_primary_key(name_table, id)
+        self._datas = db.select_primary_key(product, id)
         self._id = self._datas["id"]
         self._name = self._datas["name"]
         self._description = self._datas["description"]
@@ -86,8 +84,8 @@ class Product:
         Raises:
             ValueError: If the provided name already exists in the database.
         """
-        if not db.exists(name_table, "name", value):
-            db.set(name_table, "name", self.id, value)
+        if not db.exists(product, "name", value):
+            db.set(product, "name", self.id, value)
             self._name = value
             return None
         raise ValueError("Existing product name...")
@@ -111,7 +109,7 @@ class Product:
         Args:
             value (str): The new description of the product.
         """
-        db.set(name_table, "description", self.id, value)
+        db.set(product, "description", self.id, value)
         self._description = value
 
     @property
@@ -132,7 +130,7 @@ class Product:
         Args:
             value (float): The new price of the product.
         """
-        db.set(name_table, "price", self.id, value)
+        db.set(product, "price", self.id, value)
         self._price = value
 
     @property
@@ -153,7 +151,7 @@ class Product:
         Args:
             value (float): The new quantity of the product.
         """
-        db.set(name_table, "quantity", self.id, value)
+        db.set(product, "quantity", self.id, value)
         self._quantity = value
 
     @property
@@ -174,7 +172,7 @@ class Product:
         Args:
             value (bin): The new illustration data of the product.
         """
-        db.set(name_table, "illustration", self.id, value)
+        db.set(product, "illustration", self.id, value)
         self._illustration = value
 
     def __repr__(self) -> str:
@@ -198,11 +196,14 @@ class Product:
     def __bool__(self) -> bool:
         return True
     
+    def __eq__(self, other:"Product") -> bool:
+        return self.id == other.id
+    
     def delete(self) -> None:
         """
         Delete the product record from the database.
         """
-        return db.delete(name_table, self.id)
+        return db.delete(product, self.id)
 
 
 
@@ -309,7 +310,7 @@ class Products:
         Returns:
             Products: A new Products instance containing the search results.
         """
-        result = db.search_into(name_table, ("name", ), query, sort_by, desc)
+        result = db.search_into(product, ("name", ), query, sort_by, desc)
         return cls.get(result)
 
     @classmethod
@@ -325,7 +326,7 @@ class Products:
         Returns:
             Products: A new Products instance containing the search results.
         """
-        result = db.search_into(name_table, ("description", ), query, sort_by, desc)
+        result = db.search_into(product, ("description", ), query, sort_by, desc)
         return cls.get(result)
 
     @classmethod
@@ -344,5 +345,5 @@ class Products:
         Returns:
             Products: A new Products instance containing the search and filtered results.
         """
-        result = db.search_into(name_table, ("name", "description"), query, sort_by, desc)
+        result = db.search_into(product, ("name", "description"), query, sort_by, desc)
         return cls.get(result).filter_by_price(min_price, max_price)

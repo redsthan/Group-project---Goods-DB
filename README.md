@@ -80,16 +80,28 @@ user.password = "08ff3d1cae789621a0edce358ec8fb95"
 user.delete()
 #Suppression de l'utilisateur.
 
-products, quantities = user.get_basket()
-#Renvoie le panier sous la même forme qu'une recherche Products.search(), dans product
-#Renvoie également une liste qui contient pour chaque index i la quantité commandée du produit 
 
-for product, quantity in zip(products, quantities):
-    print(product, quantity)
-#Imprime chaque produit avec pour chacun sa quantité.
+basket = user.get_basket()
+#Retourne le panier d'un utilisateur donné.
 
-user.add_to_basket(product)
-#Insère le produit dans le panier (quantité par défaut à 1)
-user.add_to_basket(product, 7)
-#Fixe la quantité du produit commandé à 7.
+for command in basket:
+#Renvoie chaque commande dans le panier.
+    print(command.product)
+    #Renvoie le produit concerné
+    print(command.quantity)
+    #Renvoie la quantité commandée du produit
+    command.quantity = 5
+    #Modifie la quantité du produit dans le panier
+
+
+basket.delete(command)
+#Supprime la commande
+basket.delete(product)
+#Supprime toute commande contenant ce produit si elle existe
+
+basket.add(product)
+#Ajoute le produit au panier (une fois)
+basket.add(product, 3)
+#Ajoute 3 fois le produit au panier
+
 ```

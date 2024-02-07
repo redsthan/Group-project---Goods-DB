@@ -35,9 +35,9 @@ class User:
             Optional[User]: User object if authentication is successful; otherwise, None.
         """
         try:
-            user = User(db.unique_to_id(user, "pseudo", pseudo))
-            if user.password == password:
-                return user
+            _user = User(db.unique_to_id(user, "pseudo", pseudo))
+            if _user.password == password:
+                return _user
             return None
         except ValueError:
             return None
@@ -271,12 +271,6 @@ class Command:
         db.insert_into_table(basket, user_id=self.user.id, product_id=self.product.id, quantity=value)
         self._quantity = value
 
-    def __del__(self) -> None:
-        """
-        Delete the current command from the associated basket and database.
-        """
-        db.delete_by_conditions(basket, ("user_id", "product_id"), (self.user.id, self.product.id))
-
 
 class Basket:
     def __init__(self, user: User, commands: List[Command]):
@@ -335,18 +329,24 @@ class Basket:
             bool: True if the basket has commands, False otherwise.
         """
         return bool(self.commands)
-
-    def __delitem__(self, index: int) -> None:
-        """
-        Implement deletion using del basket_instance[index].
-
-        Args:
-            index (int): The index of the command to remove.
-        """
-        self._commands.pop(index)
+    
+    def delete(self, product:Product|None=None, index:int|None=None, command:Command|None=None) -> None:
+        if product is not None:
+            db.delete_by_conditions(basket, ("user_id", "product_id"), (self.user.id, product.id))
+            self = self.user.get_basket()
+        elif index is not None:
+            db.delete_by_conditions(basket, ("user_id", "product_id"), (self.user.id, self[index].product.id))
+        elif command is not None:
+            db.delete_by_conditions(basket, ("user_id", "product_id"), (self.user.id, command.product.id)) 
+        else:
+            raise ValueError("No valid argument given.")
         
     def add(self, product:Product, quantity:int=1):
-        db.insert_into_table(basket, user_id=self.user.id, product_id=product.id, quantity=quantity)
+        try:
+            index = [command.product for command in self.commands].index(product)
+            self.commands[index].quantity += quantity
+        except:
+            db.insert_into_table(basket, user_id=self.user.id, product_id=product.id, quantity=quantity)
         
        
 
