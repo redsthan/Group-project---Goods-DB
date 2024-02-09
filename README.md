@@ -2,14 +2,14 @@
 
 ```py
 #Pour la gestion de produits
-from database.products import Products, Product 
+from database.products import Products
 #Pour la gestion d'utilisateurs
 from database.users import User
 
-product = Product.create(name="Figurine Mario", 
-                         description="Une petite figurine... etc", 
-                         price=10.67, 
-                         quantity=34)
+product = Products.create(name="Figurine Mario", 
+                          description="Une petite figurine... etc", 
+                          price=10.67, 
+                          quantity=34)
 # Tous les autres champs que `name` sont facultatifs. De plus, deux produits ne peuvent pas avoir
 #le même nom.
 
